@@ -34,6 +34,23 @@ def build_prefix(nums):
         pre[i + 1] = pre[i] + nums[i]
     return pre
 # 区间 [l, r] 之和 = pre[r+1] - pre[l]
+def subarray_sum(nums, k):
+    from collections import defaultdict
+
+    prefix = 0
+    count = 0
+    hashmap = defaultdict(int)
+    hashmap[0] = 1  # ⚠️ 必须
+
+    for num in nums:
+        prefix += num
+
+        if prefix - k in hashmap:
+            count += hashmap[prefix - k]
+
+        hashmap[prefix] += 1
+
+    return count
 
 
 # ③ 差分数组 —— O(1) 区间加法，O(n) 还原
@@ -54,3 +71,39 @@ def restore(diff):
         res[i] += res[i - 1]
     return res
 
+# 4️⃣滑动窗口
+def sliding_window(s):
+    from collections import defaultdict
+
+    window = defaultdict(int)
+    left = 0
+    res = 0
+
+    for right in range(len(s)):
+        # 1️⃣ 扩张窗口
+        window[s[right]] += 1
+
+        # 2️⃣ 收缩窗口（关键）
+        while 不满足条件:
+            window[s[left]] -= 1
+            left += 1
+
+        # 3️⃣ 更新答案
+        res = max(res, right - left + 1)
+
+    return res
+
+
+# 5️⃣单调栈模版
+def monotonic_stack(nums):
+    stack = []
+    res = [0] * len(nums)
+
+    for i in range(len(nums)):
+        while stack and nums[stack[-1]] < nums[i]:
+            idx = stack.pop()
+            res[idx] = nums[i]
+
+        stack.append(i)
+
+    return res
