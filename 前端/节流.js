@@ -33,24 +33,24 @@ window.addEventListener('scroll', throttle(() => {
 // 二者的区别就是，前者在首次点击的时候会立刻执行，而后者还是需要等timer设置的delay。
 // 最后一次点击过后，前者可能会没有反应，后者还是会等待最后一个timer执行完。
 
-function throttle2(delay, fn){
+function throttle2(fn, delay){
   let lastTime = 0;
   return function(...args){
-    const now = new Date.now();
+    const now = Date.now();
     if(now - lastTime >= delay){
       lastTime = now;
-      fn.apply(this, args);
-    } 
+      fn.apply(this,args);
+    }
   }
 }
 
 function throttle3(fn, delay){
-  let timer = null;
+  let timer = 0;
   return function(...args){
-    if (!timer){
+    if(!timer){
       timer = setTimeout(() => {
         timer = null;
-        fn.apply(this, args)
+        fn.apply(this,args);
       }, delay);
     }
   }

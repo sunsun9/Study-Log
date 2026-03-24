@@ -42,15 +42,14 @@ if (callNow) → false → 不执行 ❌
 */
 
 function debounce2(fn, delay, immediate){
-  let timer = null;
+  let timer =null;
   return function(...args){
     const tag = immediate && !timer;
     clearTimeout(timer);
     timer = setTimeout(() => {
       timer = null;
-      if (!immediate) fn.apply(this, args);
-    }, delay)
-  if(tag) fn.apply(this, args);
+      if(!immediate) fn.apply(this,args);
+    }, delay);
+    if(tag) fn.apply(this,args);
   }
-
 }

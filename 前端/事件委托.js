@@ -34,16 +34,16 @@ document.getElementById('list').addEventListener('click', (e) => {
 });
 
 function delegate2(parent, selector, eventType, handler){
-    parent.addEventListener(eventType, function(e){
-        let target = e.target;
-        while (target && target !== parent){
-            if (target.matches(selector)){
-                handler.call(target, e);
-                return;
-            }
-            target = target.parentElement;
-        }
-    })
+  parent.addEventListener(eventType, function(e){
+    target = e.target;
+    while (target && target !== parent){
+      if(target.matches(selector)){
+        handler.call(target, e);
+        return;
+      }
+      target = target.parentElement;
+    }
+})
 }
 
 document.getElementById('list').addEventListener('click', (e) => {

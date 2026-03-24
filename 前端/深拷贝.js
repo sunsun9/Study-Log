@@ -28,16 +28,16 @@ function deepClone(obj, map = new WeakMap()) {
 const copy = structuredClone(original);
 
 function deepClone2(obj, map = new WeakMap()){
-  if (obj === null || obj === 'object') return obj;
-  if (map.has(obj)) return obj;
-  if (obj instanceof Data) return new Date(obj);
-  if (obj instanceof RegExp) return new RegExp(obj);
+  if(obj === null || typeof obj !== 'object') return obj;
+  if(map.has(obj)) return map.get(obj);
+  if(obj instanceof Date) return new Date(obj);
+  if(obj instanceof RegExp) return new RegExp(obj);
 
   const clone = Array.isArray(obj) ? [] : {};
   map.set(obj, clone);
   for (const key in obj){
     if (Object.prototype.hasOwnProperty.call(obj, key)){
-      clone = deepClone2(obj[key], map);
+      clone[key] = deepClone2(obj[key], map);
     }
   }
   return clone;
