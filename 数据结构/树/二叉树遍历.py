@@ -36,14 +36,15 @@ def level_order(root):
         level = []
         for _ in range(len(q)):         # 每轮处理一层
             node = q.popleft()
-            level.append(node.val)
-            if node.left:  q.append(node.left)
+            level.append(node.val)      # 记录当前层的所有节点
+            if node.left:  q.append(node.left)      # 把该层节点的子节点加入队列，下一轮就能处理下一层了
             if node.right: q.append(node.right)
         res.append(level)
     return res
 
 def rightSideView(root):
     """返回二叉树的右视图：每层最右边的节点"""
+    # 与上面层序遍历的思路一致，res存放每层最右边的节点，按照层序遍历的方式访问
     if not root: return []
     q = deque([root])
     res = []
@@ -63,6 +64,7 @@ def build_tree(preorder, inorder):
     """根据前序和中序构建二叉树
     中序负责"划分左右"，前序负责"确定根节点"
     """
+    # 核心步骤：1.利用前序获取根节点，2.利用中序获取左子树大小，3.递归构建左右子树
     idx_map = {v:i for i,v in enumerate(inorder)}
 
     def helper(pl, pr, il, ir):
@@ -80,22 +82,6 @@ def build_tree(preorder, inorder):
         return root
 
     return helper(0, len(preorder)-1, 0, len(inorder)-1)
-
-
-def dfs(root):
-    """DFS（深度优先搜索）框架"""
-    if not root:
-        return
-
-    # 1. 处理当前节点（前序）
-    
-    dfs(root.left)
-
-    # 2. 处理中间（中序）
-
-    dfs(root.right)
-
-    # 3. 处理当前节点（后序）
 
 def isBalanced(root):
     """判断二叉树是否平衡：任意节点的左右子树高度差不超过1"""
@@ -116,8 +102,8 @@ def lowestCommonAncestor(root, p, q):
     如果只找到一边，说明最近公共祖先在那一边。"""
     if not root or root == p or root == q:
         return root
-    left = lowestCommonAncestor(root.left, p, q)
-    right = lowestCommonAncestor(root.right, p, q)
+    left = lowestCommonAncestor(root.left, p, q)    # 在左边找
+    right = lowestCommonAncestor(root.right, p, q)  # 在右边找  
 
     if left and right:
         return root
@@ -142,13 +128,14 @@ def kthSmallest(root, k):
     stack = []
     while True:
         while root:
+            # 一直找到最左边的节点，沿途把节点都压入栈中
             stack.append(root)
             root = root.left
         root = stack.pop()
         k -= 1
         if k == 0:
             return root.val
-        root = root.right
+        root = root.right   # 这一步也比较关键
 
 def invertTree(root):
     """反转二叉树"""
@@ -180,7 +167,7 @@ def binaryTreePaths(root):
             dfs(node.left, path)
             dfs(node.right, path)
 
-        path.pop()   # 回溯
+        path.pop()   # 撤销当前节点，回到上一个节点，继续探索其他路径
 
     dfs(root, [])
     return res
@@ -195,7 +182,7 @@ def diameterOfBinaryTree(root):
         l = depth(node.left)
         r = depth(node.right)
         res = max(res, l + r)
-        return 1 + max(l, r)
+        return 1 + max(l, r)    # 返回当前节点的高度，供父节点计算直径使用
 
     depth(root)
     return res
@@ -249,29 +236,6 @@ def func(root):
     dfs(root)
     return res
 
-def func(root):
-    """路径记录"""
-    res = []
-
-    def dfs(node, path):
-        if not node:
-            return
-
-        path.append(node.val)
-
-        # 到叶子节点
-        if not node.left and not node.right:
-            res.append(path[:])   # ⚠️ 必须copy
-        else:
-            dfs(node.left, path)
-            dfs(node.right, path)
-
-        path.pop()  # 回溯
-
-    dfs(root, [])
-    return res
-
-from collections import deque
 
 def bfs(root):
     """广度优先搜索（BFS）框架"""
