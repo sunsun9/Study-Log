@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import sys
 from pathlib import Path
-from types import Any, Tuple
+from typing import Any, Tuple
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
@@ -18,8 +18,11 @@ class QueryNode(Node):
     
 class SearchNode(Node):
     def exec(self, payload: Any) -> Tuple[str, Any]:
+        # 调用search_ddgs搜索相关内容，最多返回3条数据
         results = search_ddgs(str(payload), max_results=3)
+        # 优先取标题，没有就取正文，都没有就取空
         titles = [r.get("title") or r.get("body") or "" for r in results]
+        # 把titles中的内容拼接成一个长字符串
         summary_input = " | ".join([t for t in titles if t])
         return "summarize", summary_input
     
