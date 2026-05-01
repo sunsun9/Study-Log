@@ -56,7 +56,7 @@ def cal_llm(
         result["reason_content"] = reasoning_content
 
     if message.tool_calls:
-        result["tool_calls"] = [toole_call.model_dump() for toole_call in message.tool_calls]
+        result["tool_calls"] = [tool_call.model_dump() for tool_call in message.tool_calls]
 
     return result
 
