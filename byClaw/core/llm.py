@@ -34,7 +34,9 @@ def cal_llm(
     }
 
     if tools:
+        # 或者是skills，或者是工具，反正就是一些可以调用的能力，模型可以根据需要选择调用哪些工具来完成任务
         kwargs["tools"] = tools
+        # 关于工具的选择，也可以设置从消息中指定，看到一个视频说的是工具指定的越准确，完成的效果也会越好
         kwargs["tool_choice"] = "auto"
 
     client = OpenAI(
