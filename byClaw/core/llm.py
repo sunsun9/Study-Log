@@ -36,7 +36,7 @@ def call_llm(
         msgs = [{"role": "system", "content": system_prompt}, *msgs]
 
     kwargs: dict[str, Any] = {
-        "model": "kimi-k2.5",
+        "model": "qwen3.6-plus",
         "messages": msgs,
     }
     if tools:
