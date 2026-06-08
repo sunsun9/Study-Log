@@ -152,3 +152,94 @@ if __name__ == "__main__":
 
     print("🤖 飞书 Bot 启动，监听 http://0.0.0.0:3000/feishu/webhook")
     app.run(host="0.0.0.0", port=3000, debug=False)
+
+
+
+
+# import os
+# import sys
+# from flask import Flask, request, jsonify
+# from celery import Celery
+# import redis
+
+# 假设其他 import 保持不变
+# from core.llm import call_llm ...
+
+# app = Flask(__name__)
+
+# # 1. 初始化 Redis 客户端 (用于去重) 和 Celery (用于消息队列)
+# redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
+# # 配置 Celery，使用 Redis 作为 Broker
+# celery_app = Celery(
+#     'feishu_bot_tasks',
+#     broker='redis://localhost:6379/0',
+#     backend='redis://localhost:6379/1'
+# )
+
+# # ---------------------------------------------------------
+# # 2. 定义异步任务 (替代原来的 handle 函数)
+# # ---------------------------------------------------------
+# @celery_app.task(bind=True, max_retries=3)
+# def process_feishu_message_task(self, chat_id: str, user_text: str):
+#     """
+#     这是跑在 Celery Worker 里的独立进程
+#     """
+#     try:
+#         print(f"[Worker] 开始处理 chat_id={chat_id} 的消息...")
+#         reply = run_agent(chat_id, user_text)
+#         send_message(chat_id, reply)
+#         print(f"[Worker] 已回复: {reply[:80]}...")
+#     except Exception as e:
+#         print(f"[Worker Error] 处理失败，准备重试: {e}")
+#         # 如果调用 LLM 或飞书 API 临时报错，触发 Celery 的自动重试机制
+#         # countdown=5 表示 5 秒后重试
+#         raise self.retry(exc=e, countdown=5)
+
+# # ---------------------------------------------------------
+# # 3. Webhook 接口改造
+# # ---------------------------------------------------------
+# @app.route("/feishu/webhook", methods=["POST"])
+# def feishu_webhook():
+#     body = request.json or {}
+
+#     if body.get("type") == "url_verification":
+#         return jsonify({"challenge": body.get("challenge")})
+
+#     header = body.get("header", {})
+#     event_id = header.get("event_id", "")
+#     event_type = header.get("event_type", "")
+
+#     # 改造点 A：将内存 Set 去重，升级为 Redis 分布式锁去重
+#     # 原代码 `processed_event_ids: set[str]` 会导致内存泄漏，且重启后失效
+#     if not event_id or not redis_client.setnx(f"feishu:event:{event_id}", "1"):
+#         # setnx 返回 0 说明 key 已存在，直接丢弃重放请求
+#         return jsonify({"code": 0})
+    
+#     # 设置一个过期时间，防止 Redis 长期堆积垃圾数据（比如保留 1 小时）
+#     redis_client.expire(f"feishu:event:{event_id}", 3600)
+
+#     if event_type != "im.message.receive_v1":
+#         return jsonify({"code": 0})
+
+#     event = body.get("event", {})
+#     message = event.get("message", {})
+#     chat_id = message.get("chat_id", "")
+    
+#     if message.get("message_type", "") != "text" or not chat_id:
+#         return jsonify({"code": 0})
+
+#     import json
+#     content = json.loads(message.get("content", "{}"))
+#     user_text = content.get("text", "").strip()
+
+#     if not user_text:
+#         return jsonify({"code": 0})
+
+#     print(f"[Web] 收到消息并推入队列 chat_id={chat_id}: {user_text}")
+
+#     # 改造点 B：移除 threading，将任务交给 Celery
+#     # .delay() 会立即返回，不阻塞主线程
+#     process_feishu_message_task.delay(chat_id, user_text)
+
+#     return jsonify({"code": 0})
